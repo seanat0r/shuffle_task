@@ -1,4 +1,5 @@
 import os
+import config
 import mysql, mysql.connector
 from dotenv import load_dotenv
 
@@ -6,7 +7,7 @@ class Database:
     def __init__(self):
         load_dotenv()
         self.create_database()
-        self.load_databas()
+        self.load_database()
         
     def create_database(self):
         create_db = mysql.connector.connect(
@@ -55,21 +56,32 @@ class Database:
             database = os.getenv("DB_DATABASE")
         )
     
-    def get_all_entries(self, energy_level):
-        mycursor = self.mydb.cursor()
+    def get_random_task(self, energy_level):
+        if not energy_level:
+            print(f"No ${energy_level} set")
+            return None
+        if energy_level not in config.VALID_LEVELS:
+            print(f"enegry_level has wrong value!")
+            return None
+        
+        mycursor = self.mydb.cursor(dictionary=True)
         
         sql = """
         SELECT *
         FROM tasks
-        WHERE %s
+        WHERE energy_level = %s
+        ORDER BY RAND()
+        LIMIT 1
         """
         
-    def get_random_task(self, energy_level):
-        if not energy_level:
-            return print(f"No ${energy_level} set")
-        if (energy_level != 'fun' or energy_level != 'low' or energy_level != 'medium' or energy_level != 'high'):
-            return print(f"enegry_level has wrong value!")
-        get_array = self.get_all_entries(energy_level)
+        val = energy_level
+        mycursor.execute(sql, (val,))
+        
+        result = mycursor.fetchone()
+        
+        mycursor.close()
+        return result
+        
         
         
         
