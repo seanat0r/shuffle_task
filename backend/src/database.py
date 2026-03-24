@@ -81,6 +81,73 @@ class Database:
         
         mycursor.close()
         return result
+    
+    def add_task(self, task_obj):
+        title = task_obj.title
+        duration = task_obj.duration
+        is_favorite = task_obj.is_favorite
+        description = task_obj.description
+        energy_level = task_obj.energy_level
+        
+        if title is None:
+            print(f"title canno't be null: {title}")
+            return
+        
+        if energy_level not in config.VALID_LEVELS and energy_level is not None:
+            print(f"energy_level canno't be other than: None, fun, low, medium and high; {energy_level}")
+            return
+        
+        mycursor = self.mydb.cursor()
+        
+        val = (title, duration, is_favorite, description, energy_level)
+
+        sql = """
+            INSERT INTO tasks(title, duration, is_favorite, description, energy_level)
+            VALUES (%s, %s, %s, %s, %s);
+            """
+        try:
+            mycursor.execute(sql, val)
+            self.mydb.commit()
+            print (f"Task: {title} was successfully created.")
+        except mysql.connector.Error as err:
+            print(f"error: {err}")
+        finally:
+            mycursor.close()
+        
+    def delete_task(self, task_current, delete_isTrue):
+        task_id = task_current.id
+        title = task_current.title
+
+        if not delete_isTrue:
+            print(f"No authorization: {delete_isTrue}")
+            return
+
+        if task_id is None or title is None:
+            print(f"ID or/ and title cannot be none: id: {task_id}; title: {title}")
+            return
+
+        mycursor = self.mydb.cursor()
+
+        val = (task_id, title)
+        sql = """
+        DELETE FROM tasks WHERE id = %s AND title = %s;
+        """
+
+        try:
+            mycursor.execute(sql, val)
+            self.mydb.commit()
+
+            if mycursor.rowcount > 0:
+                print(f"Task {task_id}, {title} was successfully deleted!")
+            else:
+                print(f"No match found: No task deleted with ID {task_id} and title {title}")
+        except mysql.connector.Error as err:
+            print(f"error: {err}")
+        finally:
+            mycursor.close()
+
+        
+        
         
         
         
