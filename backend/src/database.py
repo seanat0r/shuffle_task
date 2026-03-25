@@ -1,5 +1,5 @@
 import os
-import config
+from src import config
 import mysql, mysql.connector
 from dotenv import load_dotenv
 
@@ -144,17 +144,4 @@ class Database:
         except mysql.connector.Error as err:
             print(f"error: {err}")
         finally:
-            mycursor.close()
-
-        
-        
-        
-        
-        
-        
-        
-        
-if __name__ == "__main__":
-    db = Database()
-    print("connection should exists")
-    
+            mycursor.close()    
